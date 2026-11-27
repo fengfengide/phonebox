@@ -16,7 +16,7 @@ struct RootView: View {
     }
 }
 
-/// The panel shares the screen with a toolbar for the paired computer's details and Forget.
+/// The panel fills the screen; the paired computer's options float over its top-right corner.
 private struct PanelScreen: View {
     let computer: PairedComputer
     @EnvironmentObject private var pairing: PairingStore
@@ -29,9 +29,9 @@ private struct PanelScreen: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Spacer(minLength: 0)
+        PanelView(computer: computer, usb: usb)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay(alignment: .topTrailing) {
                 Button {
                     showingOptions = true
                 } label: {
@@ -40,19 +40,17 @@ private struct PanelScreen: View {
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
+                .opacity(0.9)
+                .padding(.top, 4)
+                .padding(.trailing, 4)
                 .accessibilityLabel("Paired computer options")
             }
-            .padding(.horizontal, 4)
-            .background(.bar)
-            PanelView(computer: computer, usb: usb)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .sheet(isPresented: $showingOptions) {
-            ComputerOptionsView(computer: computer, usb: usb) {
-                showingOptions = false
-                pairing.forget()
+            .sheet(isPresented: $showingOptions) {
+                ComputerOptionsView(computer: computer, usb: usb) {
+                    showingOptions = false
+                    pairing.forget()
+                }
             }
-        }
     }
 }
 
